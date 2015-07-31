@@ -56,29 +56,42 @@ ADD phabricator ./phabricator
 # Add Users
 
 # Add www user for general http file permission
-RUN echo "www:x:800:800:,,,:/home:/bin/bash"      >> /etc/passwd
+RUN echo "www:x:800:800:,,,:/srv:/bin/bash"      >> /etc/passwd
 RUN echo "www:x:800:"                             >> /etc/group
 RUN echo "www:NP:16647:0:99999:7:::"              >> /etc/shadow
 
 # Add git user for vcs access via ssh
-RUN echo "git:x:801:801:,,,:/home:/bin/bash"      >> /etc/passwd
+RUN echo "git:x:801:801:,,,:/srv:/bin/bash"      >> /etc/passwd
 RUN echo "git:x:801:"                             >> /etc/group
 RUN echo "git:NP:16647:0:99999:7:::"              >> /etc/shadow
+
+# Add sudoers rules for git <-> www
+RUN echo "git ALL=(www) SETENV: NOPASSWD: /usr/bin/git-upload-pack, /usr/bin/git-receive-pack" >> /etc/sudoers
 
 # Configuration files
 
 ADD etc ./etc
+ADD bin ./bin
 RUN ln -sf /srv/etc/php5/cli/php.ini /etc/php5/cli/php.ini
 RUN ln -sf /srv/etc/php5/fpm/php.ini /etc/php5/fpm/php.ini
 
-# Apply owners
+# Change owners and permission
 
-RUN mkdir -p /srv/uploads /srv/repo
-RUN chown -R www:www arcanist libphutil phabricator uploads repo
+RUN mkdir -p /srv/uploads /srv/repos
+RUN chown -R www:www arcanist libphutil phabricator uploads repos
+RUN chmod 755 /srv/bin/phabricator-ssh-hook.sh
+
+# Make privilege directory
+RUN mkdir /var/run/sshd
 
 # EXPOSE
 
+## 80 for http
 EXPOSE 80
+## 22 for git via ssh
+EXPOSE 22
+## 222 for normal ssh
+EXPOSE 222
 
 # ENTRYPOINT and CMD
 ADD entrypoint.sh /

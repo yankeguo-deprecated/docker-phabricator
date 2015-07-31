@@ -1,3 +1,4 @@
 /libphutil/.git
 /arcanist/.git
 /phabricator/.git
+/etc/sshd_keys/*key*

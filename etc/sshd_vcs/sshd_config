@@ -1,0 +1,27 @@
+# NOTE: You must have OpenSSHD 6.2 or newer; support for AuthorizedKeysCommand
+# was added in this version.
+
+# NOTE: Edit these to the correct values for your setup.
+
+AuthorizedKeysCommand /srv/bin/phabricator-ssh-hook.sh
+AuthorizedKeysCommandUser git
+AllowUsers git
+
+# You may need to tweak these options, but mostly they just turn off everything
+# dangerous.
+
+# Change HostKey path
+HostKey /srv/etc/sshd_keys/ssh_host_rsa_key
+HostKey /srv/etc/sshd_keys/ssh_host_dsa_key
+HostKey /srv/etc/sshd_keys/ssh_host_ecdsa_key
+HostKey /srv/etc/sshd_keys/ssh_host_ed25519_key
+
+Port 22
+Protocol 2
+PermitRootLogin no
+AllowAgentForwarding no
+AllowTcpForwarding no
+PrintMotd no
+PrintLastLog no
+PasswordAuthentication no
+AuthorizedKeysFile none
