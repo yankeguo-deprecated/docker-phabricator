@@ -6,4 +6,4 @@
 	url = https://github.com/phacility/arcanist.git
 [submodule "phabricator"]
 	path = phabricator
-	url = https://github.com/phacility/phabricator.git
+	url = https://github.com/yanke-guo/phabricator.git
