@@ -70,9 +70,10 @@ ADD etc ./etc
 RUN ln -sf /srv/etc/php5/cli/php.ini /etc/php5/cli/php.ini
 RUN ln -sf /srv/etc/php5/fpm/php.ini /etc/php5/fpm/php.ini
 
-# Exposes
+# EXPOSE
 
 EXPOSE 80
 
-# CMD
-CMD ["supervisord", "-c", "/srv/etc/supervisor/supervisord.conf"]
+# ENTRYPOINT and CMD
+# ENTRYPOINT ["/entrypoint.sh"]
+# CMD ["run"]
