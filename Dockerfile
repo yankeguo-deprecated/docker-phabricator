@@ -52,6 +52,7 @@ RUN apt-get -qy update && apt-get -qy install git \
 ADD libphutil   ./libphutil
 ADD arcanist    ./arcanist
 ADD phabricator ./phabricator
+RUN cd phabricator/support/aphlict/server/ && npm install ws
 
 # Add Users
 
