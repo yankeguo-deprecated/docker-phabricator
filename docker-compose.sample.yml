@@ -15,11 +15,18 @@ phabricator:
     - "/data/repos:/srv/repos"
     # Volumes for uploaded files
     - "/data/uploads:/srv/uploads"
-    # Volumes for preconfigurations
+    # Volumes for pre-configurations
     - "/data/pre:/srv/pre"
+    # Volumes for sshd_keys
+    - "/data/sshd_keys:/srv/etc/sshd_keys"
   links:
     - "mysql:mysql"
 mysql:
   image: mysql
+  volumes:
+    # MySQL data
+    - "/data/mysql:/var/lib/mysql"
+    # MySQL configuration
+    - "/data/mysql_conf:/etc/mysql/conf.d"
   environment:
-    MYSQL_ROOT_PASSWORD: dsaffsadfasd
+    MYSQL_ROOT_PASSWORD: some-random-password

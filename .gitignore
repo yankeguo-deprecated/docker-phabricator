@@ -1,2 +1,3 @@
 /etc/sshd_keys/*key*
 /pre/config.sh
+/docker-compose.yml

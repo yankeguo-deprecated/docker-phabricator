@@ -86,7 +86,7 @@ RUN echo "Defaults  env_keep+=\"PH_* MYSQL_*\""                                 
 
 ADD etc $PH_ETC_ROOT
 ADD bin $PH_BIN_ROOT
-ADD pre $PH_PRE_ROOT
+RUN mkdir -p $PH_PRE_ROOT
 RUN ln -sf $PH_ETC_ROOT/php5/cli/php.ini /etc/php5/cli/php.ini
 RUN ln -sf $PH_ETC_ROOT/php5/fpm/php.ini /etc/php5/fpm/php.ini
 
