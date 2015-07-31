@@ -2,3 +2,4 @@
 /arcanist/.git
 /phabricator/.git
 /etc/sshd_keys/*key*
+/pre/config.sh

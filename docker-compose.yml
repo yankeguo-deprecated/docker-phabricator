@@ -1,0 +1,25 @@
+phabricator:
+  build: .
+  command: run
+  ports:
+    # Port for sshd_ctrl, !! NEVER EXPOSE TO PUBLIC !!
+    - "127.0.0.1:2201:222"
+    # Port for sshd_vcs
+    - "2200:22"
+    # Port for aphlict
+    - "22280:22280"
+    # Port for nginx
+    - "80:80"
+  volumes:
+    # Volumes for repos
+    - "/data/repos:/srv/repos"
+    # Volumes for uploaded files
+    - "/data/uploads:/srv/uploads"
+    # Volumes for preconfigurations
+    - "/data/pre:/srv/pre"
+  links:
+    - "mysql:mysql"
+mysql:
+  image: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: dsaffsadfasd

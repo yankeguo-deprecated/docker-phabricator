@@ -1,1 +1,2 @@
 /etc/sshd_keys/*key*
+/pre/config.sh

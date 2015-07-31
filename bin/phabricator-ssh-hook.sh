@@ -1,14 +1,11 @@
 #!/bin/sh
 
-# NOTE: Replace this with the username that you expect users to connect with.
-VCSUSER="git"
+set -e
+set -u
 
-# NOTE: Replace this with the path to your Phabricator directory.
-ROOT="/srv/phabricator"
-
-if [ "$1" != "$VCSUSER" ];
-then
+if [ "$1" != "$PH_VCS_USER" ];
+  then
   exit 1
 fi
 
-exec "$ROOT/bin/ssh-auth" $@
+exec "$PH_ROOT/phabricator/bin/ssh-auth" $@
