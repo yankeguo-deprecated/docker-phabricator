@@ -49,9 +49,9 @@ RUN apt-get -qy update && apt-get -qy install git \
 
 # Clone Sources
 
-#RUN git clone https://github.com/phacility/libphutil.git    --depth=1
-#RUN git clone https://github.com/phacility/arcanist.git     --depth=1
-#RUN git clone https://github.com/phacility/phabricator.git  --depth=1
+RUN git clone https://github.com/phacility/libphutil.git    --depth=1
+RUN git clone https://github.com/phacility/arcanist.git     --depth=1
+RUN git clone https://github.com/phacility/phabricator.git  --depth=1
 
 # Add Users
 
@@ -67,6 +67,8 @@ RUN echo "git:NP:16647:0:99999:7:::"              >> /etc/shadow
 
 # Configuration files
 ADD etc ./etc
+RUN ln -sf /srv/etc/php5/cli/php.ini /etc/php5/cli/php.ini
+RUN ln -sf /srv/etc/php5/fpm/php.ini /etc/php5/fpm/php.ini
 
 # Exposes
 
