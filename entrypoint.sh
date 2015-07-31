@@ -106,7 +106,9 @@ fi
 
 case "$1" in
   # Start supervisor
-  run)        echo "Starting everything"
+  run)        echo "Wait 10 seconds before startup"
+              sleep 10
+              echo "Starting everything"
               ensure_permissions
               ensure_all_sshd_keys
               run_configs
