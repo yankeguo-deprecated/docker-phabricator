@@ -81,6 +81,11 @@ RUN mkdir -p /srv/uploads /srv/repos
 RUN chown -R www:www arcanist libphutil phabricator uploads repos
 RUN chmod 755 /srv/bin/phabricator-ssh-hook.sh
 
+# Set default password for root and www
+
+RUN echo "root:123" | chpasswd
+RUN echo "www:123"  | chpasswd
+
 # Make privilege directory
 RUN mkdir /var/run/sshd
 
