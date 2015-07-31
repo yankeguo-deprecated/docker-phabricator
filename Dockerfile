@@ -66,14 +66,22 @@ RUN echo "git:x:801:"                             >> /etc/group
 RUN echo "git:NP:16647:0:99999:7:::"              >> /etc/shadow
 
 # Configuration files
+
 ADD etc ./etc
 RUN ln -sf /srv/etc/php5/cli/php.ini /etc/php5/cli/php.ini
 RUN ln -sf /srv/etc/php5/fpm/php.ini /etc/php5/fpm/php.ini
+
+# Apply owners
+
+RUN mkdir -p /srv/uploads /srv/repo
+RUN chown -R www:www arcanist libphutil phabricator uploads repo
 
 # EXPOSE
 
 EXPOSE 80
 
 # ENTRYPOINT and CMD
-# ENTRYPOINT ["/entrypoint.sh"]
-# CMD ["run"]
+ADD entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["run"]
