@@ -29,6 +29,7 @@ RUN apt-get -qy update && apt-get -qy install git \
                                               nginx \
                                               nodejs \
                                               sendmail \
+                                              python-pip \
                                               supervisor \
                                               openssh-server \
                                               build-essential \
@@ -44,6 +45,7 @@ RUN apt-get -qy update && apt-get -qy install git \
                                               php5-fpm \
                                               && rm -rf /var/lib/apt/lists/*
 
+RUN pip install Pygments
 
 # ENV Variables
 

@@ -64,6 +64,12 @@ run_internal_configs() {
   config_set storage.mysql-engine.max-size  0
   config_set storage.local-disk.path        $PH_ROOT/uploads
   config_set repository.default-local-path  $PH_ROOT/repos
+  # Configs for phd
+  config_set phd.user $PH_WWW_USER
+  # Configs for diffusion
+  config_set diffusion.ssh-user $PH_VCS_USER
+  # Notifications service
+  config_set notification.enabled true
   # Other Configs
   config_set pygments.enabled true
 }
