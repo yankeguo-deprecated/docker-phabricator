@@ -47,11 +47,11 @@ RUN apt-get -qy update && apt-get -qy install git \
                                               php5-fpm \
                                               && rm -rf /var/lib/apt/lists/*
 
-# Clone Sources
+# Add Sources
 
-RUN git clone https://github.com/phacility/libphutil.git    --depth=1
-RUN git clone https://github.com/phacility/arcanist.git     --depth=1
-RUN git clone https://github.com/phacility/phabricator.git  --depth=1
+ADD libphutil   ./libphutil
+ADD arcanist    ./arcanist
+ADD phabricator ./phabricator
 
 # Add Users
 
