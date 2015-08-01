@@ -55,6 +55,7 @@ ENV PH_ROOT                 /srv
 ENV PH_ETC_ROOT             $PH_ROOT/etc
 ENV PH_BIN_ROOT             $PH_ROOT/bin
 ENV PH_PRE_ROOT             $PH_ROOT/pre
+ENV PH_RUN_ROOT             $PH_ROOT/run
 
 # Create and enter WORKDIR
 
@@ -92,10 +93,40 @@ RUN mkdir -p $PH_PRE_ROOT
 RUN ln -sf $PH_ETC_ROOT/php5/cli/php.ini /etc/php5/cli/php.ini
 RUN ln -sf $PH_ETC_ROOT/php5/fpm/php.ini /etc/php5/fpm/php.ini
 
+# tmp folders
+
+## srv/tmp
+RUN mkdir -p $PH_RUN_ROOT
+
+## phd
+RUN mkdir -p $PH_RUN_ROOT/phd/pid
+RUN mkdir -p $PH_RUN_ROOT/phd/log
+
+## php5-fpm
+RUN mkdir -p $PH_RUN_ROOT/php5-fpm/pid
+RUN mkdir -p $PH_RUN_ROOT/php5-fpm/log
+RUN mkdir -p $PH_RUN_ROOT/php5-fpm/sock
+
+## nginx
+RUN mkdir -p $PH_RUN_ROOT/nginx/pid
+RUN mkdir -p $PH_RUN_ROOT/nginx/log
+
+## sshd_vcs/sshd_ctrl
+RUN mkdir -p $PH_RUN_ROOT/sshd_vcs/pid
+RUN mkdir -p $PH_RUN_ROOT/sshd_ctrl/pid
+
+## aphlict
+RUN mkdir -p $PH_RUN_ROOT/aphlict/pid
+RUN mkdir -p $PH_RUN_ROOT/aphlict/log
+
+## supervisor
+RUN mkdir -p $PH_RUN_ROOT/supervisor/pid
+RUN mkdir -p $PH_RUN_ROOT/supervisor/log
+
 # Change owners and permission
 
 RUN mkdir -p $PH_ROOT/uploads $PH_ROOT/repos
-RUN chown -R $PH_WWW_USER:$PH_WWW_USER arcanist libphutil phabricator uploads repos
+RUN chown -R $PH_WWW_USER:$PH_WWW_USER arcanist libphutil phabricator uploads repos run
 RUN chmod 755 $PH_BIN_ROOT/phabricator-ssh-hook.sh
 
 # Set default password for root and $PH_WWW_USER

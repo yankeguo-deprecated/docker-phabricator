@@ -29,10 +29,38 @@ ensure_sshd_key() {
   chmod 700 $KEY_FILE
 }
 
+# Ensure folders
+ensure_folders() {
+  ## phd
+  mkdir -p $PH_RUN_ROOT/phd/pid
+  mkdir -p $PH_RUN_ROOT/phd/log
+
+  ## php5-fpm
+  mkdir -p $PH_RUN_ROOT/php5-fpm/pid
+  mkdir -p $PH_RUN_ROOT/php5-fpm/log
+  mkdir -p $PH_RUN_ROOT/php5-fpm/sock
+
+  ## nginx
+  mkdir -p $PH_RUN_ROOT/nginx/pid
+  mkdir -p $PH_RUN_ROOT/nginx/log
+
+  ## sshd_vcs/sshd_ctrl
+  mkdir -p $PH_RUN_ROOT/sshd_vcs/pid
+  mkdir -p $PH_RUN_ROOT/sshd_ctrl/pid
+
+  ## aphlict
+  mkdir -p $PH_RUN_ROOT/aphlict/pid
+  mkdir -p $PH_RUN_ROOT/aphlict/log
+
+  # supervisor
+  mkdir -p $PH_RUN_ROOT/supervisor/pid
+  mkdir -p $PH_RUN_ROOT/supervisor/log
+}
+
 # Ensure permissions
 ensure_permissions() {
   # Ensure $PH_WWW_USER owns these folders
-  chown -R $PH_WWW_USER:$PH_WWW_USER $PH_ROOT/libphutil $PH_ROOT/arcanist $PH_ROOT/phabricator $PH_ROOT/uploads $PH_ROOT/repos
+  chown -R $PH_WWW_USER:$PH_WWW_USER $PH_ROOT/libphutil $PH_ROOT/arcanist $PH_ROOT/phabricator $PH_ROOT/uploads $PH_ROOT/repos $PH_RUN_ROOT
   # Ensure permission of phabricator-ssh-hook.sh
   chown root:root $PH_BIN_ROOT/phabricator-ssh-hook.sh
   chmod 755 $PH_BIN_ROOT/phabricator-ssh-hook.sh
@@ -68,8 +96,13 @@ run_internal_configs() {
   config_set phd.user $PH_WWW_USER
   # Configs for diffusion
   config_set diffusion.ssh-user $PH_VCS_USER
-  # Notifications service
+  # Configs for daemons
+  config_set phd.pid-directory    $PH_RUN_ROOT/phd/pid
+  config_set phd.log-directory    $PH_RUN_ROOT/phd/log
+  # Configs for notifications service
   config_set notification.enabled true
+  config_set notification.log     $PH_RUN_ROOT/aphlict/log/aphlict.log
+  config_set notification.pidfile $PH_RUN_ROOT/aphlict/pid/aphlict.pid
   # Other Configs
   config_set pygments.enabled true
 }
@@ -93,16 +126,6 @@ upgrade_storage() {
   sudo -u $PH_WWW_USER $PH_ROOT/phabricator/bin/storage upgrade --force
 }
 
-# Start phd
-start_phd() {
-  sudo -u $PH_WWW_USER $PH_ROOT/phabricator/bin/phd start
-}
-
-# Start aphlict
-start_aphlict() {
-  sudo -u $PH_WWW_USER $PH_ROOT/phabricator/bin/aphlict start
-}
-
 # Print usage
 if [ $# -lt 1 ]
 then
@@ -115,14 +138,11 @@ case "$1" in
   run)        echo "Wait 10 seconds before startup"
               sleep 10
               echo "Starting everything"
+              ensure_folders
               ensure_permissions
               ensure_all_sshd_keys
               run_configs
               upgrade_storage
-              echo "Starting phd"
-              start_phd
-              echo "Starting aphlict"
-              start_aphlict
               echo "Starting supervisord"
               /usr/bin/supervisord -c $PH_ETC_ROOT/supervisor/supervisord.conf
               ;;

@@ -19,6 +19,8 @@ phabricator:
     - "/data/pre:/srv/pre"
     # Volumes for sshd_keys
     - "/data/sshd_keys:/srv/etc/sshd_keys"
+    # Volumes for logging and pids
+    - "/data/run:/srv/run"
   links:
     - "mysql:mysql"
 mysql:

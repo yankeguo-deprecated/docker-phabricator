@@ -25,3 +25,5 @@ PrintMotd no
 PrintLastLog no
 PasswordAuthentication no
 AuthorizedKeysFile none
+
+PidFile /srv/run/sshd_vcs/pid/sshd_vcs.pid
