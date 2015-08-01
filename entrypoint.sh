@@ -128,6 +128,11 @@ upgrade_storage() {
   sudo -u $PH_WWW_USER $PH_ROOT/phabricator/bin/storage upgrade --force
 }
 
+# clear daemons
+clear_daemons() {
+  sudo -u $PH_WWW_USER $PH_ROOT/phabricator/phd stop || true
+}
+
 # Print usage
 if [ $# -lt 1 ]
 then
@@ -143,6 +148,7 @@ case "$1" in
               ensure_all_sshd_keys
               run_configs
               upgrade_storage
+              clear_daemons
               echo "Starting supervisord"
               /usr/bin/supervisord -c $PH_ETC_ROOT/supervisor/supervisord.conf
               ;;
