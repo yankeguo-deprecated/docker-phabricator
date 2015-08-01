@@ -45,6 +45,8 @@ RUN apt-get -qy update && apt-get -qy install git \
                                               php5-fpm \
                                               && rm -rf /var/lib/apt/lists/*
 
+RUN ln -sf /usr/lib/git-core/git-http-backend /usr/bin/
+
 RUN pip install Pygments
 
 # ENV Variables
