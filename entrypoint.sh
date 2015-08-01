@@ -31,11 +31,11 @@ ensure_sshd_key() {
 
 # Ensure single run folder
 ensure_run_folder() {
+  rm -rf   $PH_RUN_ROOT/$1/pid
+  rm -rf   $PH_RUN_ROOT/$1/sock
   mkdir -p $PH_RUN_ROOT/$1/pid
   mkdir -p $PH_RUN_ROOT/$1/log
   mkdir -p $PH_RUN_ROOT/$1/sock
-  # Clean pids
-  rm -rf   $PH_RUN_ROOT/$1/pid/*
 }
 
 # Ensure folders
