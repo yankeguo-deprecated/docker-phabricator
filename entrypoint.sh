@@ -34,7 +34,7 @@ ensure_permissions() {
   # Ensure $PH_WWW_USER owns these folders
   chown -R $PH_WWW_USER:$PH_WWW_USER $PH_ROOT/libphutil $PH_ROOT/arcanist $PH_ROOT/phabricator $PH_ROOT/uploads $PH_ROOT/repos
   # Ensure permission of phabricator-ssh-hook.sh
-  chown $PH_WWW_USER:$PH_WWW_USER $PH_BIN_ROOT/phabricator-ssh-hook.sh
+  chown root:root $PH_BIN_ROOT/phabricator-ssh-hook.sh
   chmod 755 $PH_BIN_ROOT/phabricator-ssh-hook.sh
 }
 
