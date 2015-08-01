@@ -95,33 +95,8 @@ RUN ln -sf $PH_ETC_ROOT/php5/fpm/php.ini /etc/php5/fpm/php.ini
 
 # tmp folders
 
-## srv/tmp
+## /srv/run
 RUN mkdir -p $PH_RUN_ROOT
-
-## phd
-RUN mkdir -p $PH_RUN_ROOT/phd/pid
-RUN mkdir -p $PH_RUN_ROOT/phd/log
-
-## php5-fpm
-RUN mkdir -p $PH_RUN_ROOT/php5-fpm/pid
-RUN mkdir -p $PH_RUN_ROOT/php5-fpm/log
-RUN mkdir -p $PH_RUN_ROOT/php5-fpm/sock
-
-## nginx
-RUN mkdir -p $PH_RUN_ROOT/nginx/pid
-RUN mkdir -p $PH_RUN_ROOT/nginx/log
-
-## sshd_vcs/sshd_ctrl
-RUN mkdir -p $PH_RUN_ROOT/sshd_vcs/pid
-RUN mkdir -p $PH_RUN_ROOT/sshd_ctrl/pid
-
-## aphlict
-RUN mkdir -p $PH_RUN_ROOT/aphlict/pid
-RUN mkdir -p $PH_RUN_ROOT/aphlict/log
-
-## supervisor
-RUN mkdir -p $PH_RUN_ROOT/supervisor/pid
-RUN mkdir -p $PH_RUN_ROOT/supervisor/log
 
 # Change owners and permission
 

@@ -29,32 +29,24 @@ ensure_sshd_key() {
   chmod 700 $KEY_FILE
 }
 
+# Ensure single run folder
+ensure_run_folder() {
+  mkdir -p $PH_RUN_ROOT/$1/pid
+  mkdir -p $PH_RUN_ROOT/$1/log
+  mkdir -p $PH_RUN_ROOT/$1/sock
+  # Clean pids
+  rm -rf   $PH_RUN_ROOT/$1/pid/*
+}
+
 # Ensure folders
 ensure_folders() {
-  ## phd
-  mkdir -p $PH_RUN_ROOT/phd/pid
-  mkdir -p $PH_RUN_ROOT/phd/log
-
-  ## php5-fpm
-  mkdir -p $PH_RUN_ROOT/php5-fpm/pid
-  mkdir -p $PH_RUN_ROOT/php5-fpm/log
-  mkdir -p $PH_RUN_ROOT/php5-fpm/sock
-
-  ## nginx
-  mkdir -p $PH_RUN_ROOT/nginx/pid
-  mkdir -p $PH_RUN_ROOT/nginx/log
-
-  ## sshd_vcs/sshd_ctrl
-  mkdir -p $PH_RUN_ROOT/sshd_vcs/pid
-  mkdir -p $PH_RUN_ROOT/sshd_ctrl/pid
-
-  ## aphlict
-  mkdir -p $PH_RUN_ROOT/aphlict/pid
-  mkdir -p $PH_RUN_ROOT/aphlict/log
-
-  # supervisor
-  mkdir -p $PH_RUN_ROOT/supervisor/pid
-  mkdir -p $PH_RUN_ROOT/supervisor/log
+  ensure_run_folder phd
+  ensure_run_folder php5-fpm
+  ensure_run_folder nginx
+  ensure_run_folder sshd_vcs
+  ensure_run_folder sshd_ctrl
+  ensure_run_folder aphlict
+  ensure_run_folder supervisor
 }
 
 # Ensure permissions
