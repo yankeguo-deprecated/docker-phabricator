@@ -1,18 +1,48 @@
 #!/bin/bash
 
+# Get MYSQL_PORT_3306_TCP_PORT before strict mode
 MYSQL_PORT_3306_TCP_PORT="$MYSQL_PORT_3306_TCP_PORT"
 
 set -e
 set -u
 
-# Function to print usage
-print_usage() {
-  cat <<-EOF
-Usage:
-  run         - Run everything
-  shell       - Start a bash shell for $PH_WWW_USER user
-  root_shell  - Start a bash shell for root user
-EOF
+# Place preamble.php
+place_preamble() {
+  # preamble.php
+  PRE_CONFIG_PHP=$PH_PRE_ROOT/preamble.php
+  TAR_CONFIG_PHP=$PH_ROOT/phabricator/support/preamble.php
+  if [ -f $PRE_CONFIG_PHP ]; then
+    cp $PRE_CONFIG_PHP $TAR_CONFIG_PHP
+  fi
+}
+
+# Ensure single run folder
+ensure_run_folder() {
+  rm -rf   $PH_RUN_ROOT/$1/pid
+  rm -rf   $PH_RUN_ROOT/$1/sock
+  mkdir -p $PH_RUN_ROOT/$1/pid
+  mkdir -p $PH_RUN_ROOT/$1/log
+  mkdir -p $PH_RUN_ROOT/$1/sock
+}
+
+# Ensure folders
+ensure_run_folders() {
+  ensure_run_folder phd
+  ensure_run_folder php5-fpm
+  ensure_run_folder nginx
+  ensure_run_folder sshd_vcs
+  ensure_run_folder sshd_ctrl
+  ensure_run_folder aphlict
+  ensure_run_folder supervisor
+}
+
+# Ensure permissions
+ensure_folder_permissions() {
+  # Ensure $PH_WWW_USER owns these folders
+  chown -R $PH_WWW_USER:$PH_WWW_USER $PH_ROOT/libphutil $PH_ROOT/arcanist $PH_ROOT/phabricator $PH_ROOT/uploads $PH_ROOT/repos $PH_RUN_ROOT
+  # Ensure permission of phabricator-ssh-hook.sh
+  chown root:root $PH_BIN_ROOT/phabricator-ssh-hook.sh
+  chmod 755 $PH_BIN_ROOT/phabricator-ssh-hook.sh
 }
 
 # Ensure a ssh_host_key, if not exists, copy from /etc/ssh/
@@ -29,37 +59,8 @@ ensure_sshd_key() {
   chmod 700 $KEY_FILE
 }
 
-# Ensure single run folder
-ensure_run_folder() {
-  rm -rf   $PH_RUN_ROOT/$1/pid
-  rm -rf   $PH_RUN_ROOT/$1/sock
-  mkdir -p $PH_RUN_ROOT/$1/pid
-  mkdir -p $PH_RUN_ROOT/$1/log
-  mkdir -p $PH_RUN_ROOT/$1/sock
-}
-
-# Ensure folders
-ensure_folders() {
-  ensure_run_folder phd
-  ensure_run_folder php5-fpm
-  ensure_run_folder nginx
-  ensure_run_folder sshd_vcs
-  ensure_run_folder sshd_ctrl
-  ensure_run_folder aphlict
-  ensure_run_folder supervisor
-}
-
-# Ensure permissions
-ensure_permissions() {
-  # Ensure $PH_WWW_USER owns these folders
-  chown -R $PH_WWW_USER:$PH_WWW_USER $PH_ROOT/libphutil $PH_ROOT/arcanist $PH_ROOT/phabricator $PH_ROOT/uploads $PH_ROOT/repos $PH_RUN_ROOT
-  # Ensure permission of phabricator-ssh-hook.sh
-  chown root:root $PH_BIN_ROOT/phabricator-ssh-hook.sh
-  chmod 755 $PH_BIN_ROOT/phabricator-ssh-hook.sh
-}
-
 # Ensure multiple ssh_host_key
-ensure_all_sshd_keys() {
+ensure_sshd_keys() {
   ensure_sshd_key "ssh_host_dsa_key"
   ensure_sshd_key "ssh_host_rsa_key"
   ensure_sshd_key "ssh_host_ecdsa_key"
@@ -72,7 +73,7 @@ config_set() {
 }
 
 # Internal configs
-run_internal_configs() {
+do_internal_configs() {
   # Configs for linked mysql
   if [ -n "$MYSQL_PORT_3306_TCP_PORT" ]; then
     config_set mysql.host $MYSQL_PORT_3306_TCP_ADDR
@@ -100,15 +101,7 @@ run_internal_configs() {
 }
 
 # Run Pre configs
-run_pre_configs() {
-  # preamble.php
-  PRE_CONFIG_PHP=$PH_PRE_ROOT/preamble.php
-  TAR_CONFIG_PHP=$PH_ROOT/phabricator/support/preamble.php
-  if [ -f $PRE_CONFIG_PHP ]; then
-    cp $PRE_CONFIG_PHP $TAR_CONFIG_PHP
-    chown $PH_WWW_USER:$PH_WWW_USER $TAR_CONFIG_PHP
-  fi
-  # config.sh
+do_external_configs() {
   PRE_CONFIG_SH=$PH_PRE_ROOT/config.sh
   if [ -f $PRE_CONFIG_SH ]; then
     chmod +x $PRE_CONFIG_SH
@@ -118,49 +111,72 @@ run_pre_configs() {
 }
 
 # Run configs
-run_configs() {
-  run_internal_configs
-  run_pre_configs
+do_configs() {
+  do_internal_configs
+  do_external_configs
 }
 
 # Upgrade storage
-upgrade_storage() {
+storage_upgrade() {
   sudo -u $PH_WWW_USER $PH_ROOT/phabricator/bin/storage upgrade --force
 }
 
-# clear daemons
-clear_daemons() {
-  sudo -u $PH_WWW_USER $PH_ROOT/phabricator/phd stop || true
+# phd ctrl
+service_ctrl() {
+  sudo -u $PH_WWW_USER $PH_ROOT/phabricator/bin/$1 $2
 }
 
-# Print usage
-if [ $# -lt 1 ]
-then
-  print_usage
-  exit
-fi
+# On SIGTERM
+on_exit() {
+  echo
+  echo "## Signal caught..."
+  echo
+  # Stop supervisord
+  kill -SIGTERM $1
+  # Stop phd, aphlict
+  service_ctrl phd      stop
+  service_ctrl aphlict  stop
+  # Exit
+  exit 0
+}
 
-case "$1" in
-  # Start supervisor
-  run)        echo "Starting everything"
-              ensure_folders
-              ensure_permissions
-              ensure_all_sshd_keys
-              run_configs
-              upgrade_storage
-              clear_daemons
-              echo "Starting supervisord"
-              /usr/bin/supervisord -c $PH_ETC_ROOT/supervisor/supervisord.conf
-              ;;
-  # Start a shell as $PH_WWW_USER user
-  shell)      echo "Starting shell for $PH_WWW_USER user"
-              ensure_permissions
-              sudo -u $PH_WWW_USER -i
-              ;;
-  # Start a root shell
-  root_shell) echo "Starting shell for root user"
-              ensure_permissions
-              bash
-              ;;
-  *)          print_usage
-esac
+# Preparation
+
+echo
+echo "## Preparing..."
+echo
+
+place_preamble
+ensure_run_folders
+ensure_folder_permissions
+ensure_sshd_keys
+do_configs
+storage_upgrade
+
+# Start standalone services
+
+echo
+echo "## Starting phd, aphlict..."
+echo
+
+service_ctrl phd      start
+service_ctrl aphlict  start
+
+# Start supervisord for all other services
+
+echo
+echo "## Starting supervisord..."
+echo
+
+/usr/bin/supervisord -c $PH_ETC_ROOT/supervisor/supervisord.conf &
+
+PID="$!"
+
+# Trapping SIGTERM by docker stop
+trap "on_exit $PID" SIGTERM SIGINT SIGQUIT
+
+echo
+echo "## Waiting..."
+echo
+
+wait
