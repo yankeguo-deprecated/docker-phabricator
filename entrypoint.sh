@@ -101,8 +101,18 @@ run_internal_configs() {
 
 # Run Pre configs
 run_pre_configs() {
+  # preamble.php
+  PRE_CONFIG_PHP=$PH_PRE_ROOT/preamble.php
+  TAR_CONFIG_PHP=$PH_ROOT/phabricator/support/preamble.php
+  if [ -f $PRE_CONFIG_PHP ]; then
+    cp $PRE_CONFIG_PHP $TAR_CONFIG_PHP
+    chown $PH_WWW_USER:$PH_WWW_USER $TAR_CONFIG_PHP
+  fi
+  # config.sh
   PRE_CONFIG_SH=$PH_PRE_ROOT/config.sh
   if [ -f $PRE_CONFIG_SH ]; then
+    chmod +x $PRE_CONFIG_SH
+    chown $PH_WWW_USER:$PH_WWW_USER $PRE_CONFIG_SH
     sudo -u $PH_WWW_USER $PRE_CONFIG_SH
   fi
 }
