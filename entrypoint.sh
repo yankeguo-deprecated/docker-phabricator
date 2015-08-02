@@ -133,6 +133,7 @@ on_exit() {
   echo
   # Stop supervisord
   kill -SIGTERM $1
+  wait $1
   # Stop phd, aphlict
   service_ctrl phd      stop
   service_ctrl aphlict  stop
