@@ -29,6 +29,7 @@ RUN apt-get -qy update && apt-get -qy install git \
                                               nginx \
                                               nodejs \
                                               sendmail \
+                                              mercurial \
                                               python-pip \
                                               supervisor \
                                               openssh-server \
@@ -53,6 +54,7 @@ RUN pip install Pygments
 
 ENV PH_WWW_USER             www
 ENV PH_VCS_USER             git
+ENV PH_PHD_USER             phd
 ENV PH_ROOT                 /srv
 ENV PH_ETC_ROOT             $PH_ROOT/etc
 ENV PH_BIN_ROOT             $PH_ROOT/bin
@@ -83,8 +85,14 @@ RUN echo "$PH_VCS_USER:x:801:801:,,,:$PH_ROOT:/bin/bash"                  >> /et
 RUN echo "$PH_VCS_USER:x:801:"                                            >> /etc/group
 RUN echo "$PH_VCS_USER:NP:16647:0:99999:7:::"                             >> /etc/shadow
 
+# Add git user for vcs access via ssh
+RUN echo "$PH_PHD_USER:x:802:802:,,,:$PH_ROOT:/bin/bash"                  >> /etc/passwd
+RUN echo "$PH_PHD_USER:x:802:"                                            >> /etc/group
+RUN echo "$PH_PHD_USER:NP:16647:0:99999:7:::"                             >> /etc/shadow
+
 # Add sudoers rules for $PH_VCS_USER <-> $PH_WWW_USER
-RUN echo "$PH_VCS_USER ALL=($PH_WWW_USER) SETENV: NOPASSWD: /usr/bin/git-upload-pack, /usr/bin/git-receive-pack"  >> /etc/sudoers
+RUN echo "$PH_VCS_USER ALL=($PH_PHD_USER) SETENV: NOPASSWD: /usr/bin/git-upload-pack,   /usr/bin/git-receive-pack, /usr/bin/hg"   >> /etc/sudoers
+RUN echo "$PH_WWW_USER ALL=($PH_PHD_USER) SETENV: NOPASSWD: /usr/bin/git-http-backend,  /usr/bin/hg"                              >> /etc/sudoers
 RUN echo "Defaults  env_keep+=\"PH_* MYSQL_*\""                                                                   >> /etc/sudoers
 
 # Configuration files
@@ -103,7 +111,8 @@ RUN mkdir -p $PH_RUN_ROOT
 # Change owners and permission
 
 RUN mkdir -p $PH_ROOT/uploads $PH_ROOT/repos
-RUN chown -R $PH_WWW_USER:$PH_WWW_USER arcanist libphutil phabricator uploads repos run
+RUN chown -R $PH_WWW_USER:$PH_WWW_USER arcanist libphutil phabricator uploads run
+RUN chown -R $PH_PHD_USER:$PH_PHD_USER repos
 RUN chmod 755 $PH_BIN_ROOT/phabricator-ssh-hook.sh
 
 # Set default password for root and $PH_WWW_USER
