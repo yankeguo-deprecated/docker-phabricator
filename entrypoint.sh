@@ -39,7 +39,8 @@ ensure_run_folders() {
 # Ensure permissions
 ensure_folder_permissions() {
   # Ensure $PH_WWW_USER owns these folders
-  chown -R $PH_WWW_USER:$PH_WWW_USER $PH_ROOT/libphutil $PH_ROOT/arcanist $PH_ROOT/phabricator $PH_ROOT/uploads $PH_ROOT/repos $PH_RUN_ROOT
+  chown -R $PH_WWW_USER:$PH_WWW_USER $PH_ROOT/libphutil $PH_ROOT/arcanist $PH_ROOT/phabricator $PH_ROOT/uploads $PH_RUN_ROOT
+  chown -R $PH_PHD_USER:$PH_PHD_USER $PH_ROOT/repos
   # Ensure permission of phabricator-ssh-hook.sh
   chown root:root $PH_BIN_ROOT/phabricator-ssh-hook.sh
   chmod 755 $PH_BIN_ROOT/phabricator-ssh-hook.sh
@@ -86,7 +87,7 @@ do_internal_configs() {
   config_set storage.local-disk.path        $PH_ROOT/uploads
   config_set repository.default-local-path  $PH_ROOT/repos
   # Configs for phd
-  config_set phd.user $PH_WWW_USER
+  config_set phd.user $PH_PHD_USER
   # Configs for diffusion
   config_set diffusion.ssh-user $PH_VCS_USER
   # Configs for daemons
