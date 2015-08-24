@@ -123,8 +123,12 @@ storage_upgrade() {
 }
 
 # phd ctrl
-service_ctrl() {
+service_ctrl_www() {
   sudo -u $PH_WWW_USER $PH_ROOT/phabricator/bin/$1 $2
+}
+
+service_ctrl_phd() {
+  sudo -u $PH_PHD_USER $PH_ROOT/phabricator/bin/$1 $2
 }
 
 # On SIGTERM
@@ -136,8 +140,8 @@ on_exit() {
   kill -SIGTERM $1
   wait $1
   # Stop phd, aphlict
-  service_ctrl phd      stop
-  service_ctrl aphlict  stop
+  service_ctrl_phd phd      stop
+  service_ctrl_www aphlict  stop
   # Exit
   exit 0
 }
@@ -161,8 +165,8 @@ echo
 echo "## Starting phd, aphlict..."
 echo
 
-service_ctrl phd      start
-service_ctrl aphlict  start
+service_ctrl_phd phd      start
+service_ctrl_www aphlict  start
 
 # Start supervisord for all other services
 
